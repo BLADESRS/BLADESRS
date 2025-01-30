@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BLADE MODS Login</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Background Particle Animation */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .linear1, .linear2 {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+        }
+
+        .linear1 {
+            display: block;
+            background-color: black;
+        }
+
+        .linear2 {
+            background-color: black;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px;
+            cursor: pointer;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 10px;
+            width: 200px;
+            font-size: 16px;
+        }
+
+        .text-view {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particle Background -->
+    <canvas class="particles"></canvas>
+
+    <!-- Login Page (linear1) -->
+    <div id="linear1" class="linear1">
+        <h2 id="textview1" class="text-view">BLADE MODS</h2>
+        <input type="text" id="username" placeholder="Enter Username"><br><br>
+        <input type="password" id="password" placeholder="Enter Password"><br><br>
+        <button id="button1" onclick="login()">LOGIN</button>
+        <p id="loginMessage"></p>
+    </div>
+
+    <!-- Second Page (linear2) -->
+    <div id="linear2" class="linear2">
+        <h2 id="textview5" class="text-view">BLADE MODS</h2>
+        <h3>Period: <span id="textview6"></span></h3>
+        <h3>Time Left: <span id="textview7"></span></h3>
+        <h3>Result: <span id="textview4"></span></h3>
+        <button id="button2" onclick="checkResult()">Check Result</button>
+        <button id="button3" onclick="redirectTelegram()">Join Telegram</button>
+    </div>
+
+    <script>
+        let canCheckResult = false;
+        
+        // Particle Animation
+        const canvas = document.querySelector('.particles');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        function Particle(x, y, color) {
+            this.x = x;
+            this.y = y;
+            this.size = Math.random() * 3 + 1;
+            this.speedX = Math.random() * 3 - 1.5;
+            this.speedY = Math.random() * 3 - 1.5;
+            this.color = color;
+        }
+
+        Particle.prototype.update = function() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.size > 0.2) this.size -= 0.1;
+        };
+
+        Particle.prototype.draw = function() {
+            ctx.fillStyle = this.color;
+            ctx.strokeStyle = this.color;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+        };
+
+        function createParticles(e) {
+            let color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            let xPos = e.x;
+            let yPos = e.y;
+
+            for (let i = 0; i < 5; i++) {
+                particles.push(new Particle(xPos, yPos, color));
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach((particle, index) => {
+                particle.update();
+                particle.draw();
+                if (particle.size <= 0.2) {
+                    particles.splice(index, 1);
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+
+        canvas.addEventListener('mousemove', createParticles);
+        animateParticles();
+
+        // Login functionality
+        function login() {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            if (username === "BLADE MODS" && password === "BLADE_SRS") {
+                document.getElementById("loginMessage").innerText = "Login Success";
+                document.getElementById("linear1").style.display = "none";
+                document.getElementById("linear2").style.display = "block";
+                startTimer();
+            } else {
+                document.getElementById("loginMessage").innerText = "Invalid Credentials";
+            }
+        }
+
+        // Redirect to Telegram channel
+        function redirectTelegram() {
+            window.location.href = "https://t.me/AFMBLADE";
+        }
+
+        // Pick random result (BIG or SMALL)
+        function checkResult() {
+            if (!canCheckResult) {
+                alert("Wait For Next Period");
+                return;
+            }
+            const result = Math.random() < 0.5 ? "BIG" : "SMALL";
+            document.getElementById("textview4").innerText = result;
+            canCheckResult = false;
+        }
+
+        // Start timer function
+        function startTimer() {
+            setInterval(() => {
+                const now = new Date();
+                const utcNow = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+
+                const seconds = utcNow.getSeconds();
+                const remainingSeconds = 60 - seconds;
+                const minutes = utcNow.getMinutes();
+                const totalMinutes = utcNow.getHours() * 60 + minutes;
+
+                const period = `${utcNow.getFullYear()}${("0" + (utcNow.getMonth() + 1)).slice(-2)}${("0" + utcNow.getDate()).slice(-2)}1000${10001 + totalMinutes}`;
+                document.getElementById("textview6").innerText = period;
+                document.getElementById("textview7").innerText = `00:${remainingSeconds < 10 ? "0" : ""}${remainingSeconds}`;
+
+                if (remainingSeconds === 60) {
+                    canCheckResult = true;
+                }
+            }, 1000);
+        }
+    </script>
+
+</body>
+</html>
